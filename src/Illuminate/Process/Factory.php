@@ -294,7 +294,11 @@ class Factory
     public function newPendingProcess()
     {
         return (new PendingProcess($this))
-            ->setRemoteProcess($this->remoteProcess)
+            ->when(function($process){
+                if($this->remoteProcess){
+                    $process->setRemoteProcess($this->remoteProcess);
+                }
+            })
             ->withFakeHandlers($this->fakeHandlers);
     }
 
