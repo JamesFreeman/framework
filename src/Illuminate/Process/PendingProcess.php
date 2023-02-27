@@ -13,8 +13,6 @@ use Symfony\Component\Process\Process;
 
 class PendingProcess
 {
-    use Conditionable;
-
     /**
      * The process factory instance.
      *
@@ -233,7 +231,7 @@ class PendingProcess
         return $this;
     }
 
-    public function setRemoteProcess(RemoteProcess $remoteProcess)
+    public function setRemoteProcess(?RemoteProcess $remoteProcess)
     {
         $this->remoteProcess = $remoteProcess;
 
