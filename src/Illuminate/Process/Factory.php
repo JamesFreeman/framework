@@ -41,6 +41,9 @@ class Factory
      */
     protected $preventStrayProcesses = false;
 
+    public $remoteProcess = null;
+
+
     /**
      * Create a new fake process response for testing purposes.
      *
@@ -290,7 +293,16 @@ class Factory
      */
     public function newPendingProcess()
     {
-        return (new PendingProcess($this))->withFakeHandlers($this->fakeHandlers);
+        return (new PendingProcess($this))
+            ->setRemoteProcess($this->remoteProcess)
+            ->withFakeHandlers($this->fakeHandlers);
+    }
+
+    public function remote(RemoteProcess $remoteProcess)
+    {
+        $this->remoteProcess = $remoteProcess;
+
+        return $this;
     }
 
     /**

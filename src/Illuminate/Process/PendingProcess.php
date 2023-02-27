@@ -61,6 +61,8 @@ class PendingProcess
      */
     public $input;
 
+    public $remoteProcess = null;
+
     /**
      * Indicates whether output should be disabled for the process.
      *
@@ -228,6 +230,13 @@ class PendingProcess
         return $this;
     }
 
+    public function setRemoteProcess(RemoteProcess $remoteProcess)
+    {
+        $this->remoteProcess = $remoteProcess;
+
+        return $this;
+    }
+
     /**
      * Run the process.
      *
@@ -290,6 +299,10 @@ class PendingProcess
     {
         $command = $command ?? $this->command;
 
+        if($this->remoteProcess){
+            $command = $this->toRemoteCommand($command);
+        }
+
         $process = is_iterable($command)
                 ? new Process($command, null, $this->environment)
                 : Process::fromShellCommandline((string) $command, null, $this->environment);
@@ -318,6 +331,11 @@ class PendingProcess
         }
 
         return $process;
+    }
+
+    protected function toRemoteCommand(string $command)
+    {
+        return $this->remoteProcess->getCommand($command);
     }
 
     /**
