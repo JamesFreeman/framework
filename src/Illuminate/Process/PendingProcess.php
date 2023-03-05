@@ -301,7 +301,7 @@ class PendingProcess
         $command = $command ?? $this->command;
 
         if($this->remoteProcess){
-            $command = $this->toRemoteCommand($command);
+            $command = $this->remoteProcess->getCommand($command);
         }
 
         $process = is_iterable($command)
@@ -332,11 +332,6 @@ class PendingProcess
         }
 
         return $process;
-    }
-
-    protected function toRemoteCommand(string $command)
-    {
-        return $this->remoteProcess->getCommand($command);
     }
 
     /**

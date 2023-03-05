@@ -6,6 +6,7 @@ use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Process\Exceptions\ProcessFailedException;
 use Illuminate\Process\Exceptions\ProcessTimedOutException;
 use Illuminate\Process\Factory;
+use Illuminate\Process\RemoteProcess;
 use Mockery as m;
 use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
@@ -312,7 +313,7 @@ class ProcessTest extends TestCase
         $result = $factory->run('ls -la');
     }
 
-    public function testStrayProcessesCanBePreventedWithStringComand()
+    public function testStrayProcessesCanBePreventedWithStringCommand()
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Attempted process [');
@@ -535,13 +536,31 @@ class ProcessTest extends TestCase
         });
     }
 
-    public function testAsssertingThatNothingRan()
+    public function testAssertingThatNothingRan()
     {
         $factory = new Factory;
 
         $factory->fake();
 
         $factory->assertNothingRan();
+    }
+
+    public function testThatYouCanCreateARemoteProcess()
+    {
+        $this->markTestIncomplete('Skipped for now');
+
+        $factory = new Factory;
+        $factory->remote(RemoteProcess::create('foo', 'bar'));
+
+        $factory->fake();
+
+        $this->assertInstanceOf(RemoteProcess::class, $factory->getRemoteProcess());
+
+        $result = $factory->run('ls -la');
+
+        $factory->assertRan(function ($process, $result) {
+            dd($process, $result);
+        });
     }
 
     protected function ls()

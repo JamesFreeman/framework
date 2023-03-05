@@ -2,8 +2,8 @@
 
 namespace Illuminate\Process;
 
-use Closure;
 use Exception;
+use Illuminate\Support\Arr;
 
 class RemoteProcess
 {
@@ -33,10 +33,14 @@ class RemoteProcess
         return $this;
     }
 
-    public function setPort(int $port): self
+    public function usePort(int $port): self
     {
         if ($port < 0) {
             throw new Exception('Port must be a positive integer.');
+        }
+
+        if($port === 22){
+            return $this;
         }
 
         $this->extraOptions['port'] = '-p ' . $port;
@@ -100,14 +104,9 @@ class RemoteProcess
         return $this;
     }
 
-    /**
-     * @param string|array $command
-     *
-     * @return string
-     */
-    public function getCommand($command): string
+    public function getCommand(string|array $command): string
     {
-        $commands = $this->wrapArray($command);
+        $commands = Arr::wrap($command);
 
         $extraOptions = implode(' ', $this->getExtraOptions());
 
@@ -126,14 +125,19 @@ class RemoteProcess
             .$delimiter;
     }
 
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    public function getHost()
+    {
+        return $this->host;
+    }
+
     private function getExtraOptions(): array
     {
         return array_values($this->extraOptions);
-    }
-
-    protected function wrapArray($arrayOrString): array
-    {
-        return (array) $arrayOrString;
     }
 
     protected function getTargetForSsh(): string
