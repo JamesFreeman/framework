@@ -41,6 +41,9 @@ class Factory
      */
     protected $preventStrayProcesses = false;
 
+    protected $remoteProcess = null;
+
+
     /**
      * Create a new fake process response for testing purposes.
      *
@@ -174,6 +177,16 @@ class Factory
     }
 
     /**
+     * Determine if stray processes are being prevented.
+     *
+     * @return \Illuminate\Process\RemoteProcess|null
+     */
+    public function getRemoteProcess()
+    {
+        return $this->remoteProcess;
+    }
+
+    /**
      * Assert that a process was recorded matching a given truth test.
      *
      * @param  \Closure|string  $callback
@@ -182,6 +195,8 @@ class Factory
     public function assertRan(Closure|string $callback)
     {
         $callback = is_string($callback) ? fn ($process) => $process->command === $callback : $callback;
+
+        dump($this->recorded);
 
         PHPUnit::assertTrue(
             collect($this->recorded)->filter(function ($pair) use ($callback) {
@@ -290,7 +305,22 @@ class Factory
      */
     public function newPendingProcess()
     {
-        return (new PendingProcess($this))->withFakeHandlers($this->fakeHandlers);
+        return (new PendingProcess($this))
+            ->setRemoteProcess($this->remoteProcess)
+            ->withFakeHandlers($this->fakeHandlers);
+
+    }
+
+    /**
+     * Register a RemoteProcess to run an SSH command.
+     *
+     * @return $this
+     */
+    public function remote(RemoteProcess $remoteProcess)
+    {
+        $this->remoteProcess = $remoteProcess;
+
+        return $this;
     }
 
     /**

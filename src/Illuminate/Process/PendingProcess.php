@@ -5,6 +5,7 @@ namespace Illuminate\Process;
 use Closure;
 use Illuminate\Process\Exceptions\ProcessTimedOutException;
 use Illuminate\Support\Str;
+use Illuminate\Support\Traits\Conditionable;
 use LogicException;
 use RuntimeException;
 use Symfony\Component\Process\Exception\ProcessTimedOutException as SymfonyTimeoutException;
@@ -60,6 +61,8 @@ class PendingProcess
      * @var string|int|float|bool|resource|\Traversable|null
      */
     public $input;
+
+    public $remoteProcess = null;
 
     /**
      * Indicates whether output should be disabled for the process.
@@ -228,6 +231,13 @@ class PendingProcess
         return $this;
     }
 
+    public function setRemoteProcess(?RemoteProcess $remoteProcess)
+    {
+        $this->remoteProcess = $remoteProcess;
+
+        return $this;
+    }
+
     /**
      * Run the process.
      *
@@ -289,6 +299,10 @@ class PendingProcess
     protected function toSymfonyProcess(array|string|null $command)
     {
         $command = $command ?? $this->command;
+
+        if($this->remoteProcess){
+            $command = $this->remoteProcess->getCommand($command);
+        }
 
         $process = is_iterable($command)
                 ? new Process($command, null, $this->environment)
